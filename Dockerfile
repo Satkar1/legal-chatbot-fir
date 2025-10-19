@@ -39,4 +39,5 @@ EXPOSE 8000
 
 # Default CMD for the main web service (Render will use this by default)
 # If you deploy chatbot_api or fir_api separately, override start command in Render
-CMD ["gunicorn", "--workers", "4", "--bind", "0.0.0.0:8000", "app:app"]
+CMD ["gunicorn", "--workers", "4", "--bind", "0.0.0.0:8000", "legal.app:app"]
+
