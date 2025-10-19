@@ -1,0 +1,13 @@
+version: '3.9'
+
+services:
+  web:
+    build: .
+    container_name: legal-chatbot-web
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - ./legal:/app
+    command: gunicorn --workers 4 --bind 0.0.0.0:8000 app:app
