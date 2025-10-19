@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Police Dashboard | AI Legal Assistance</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/police.css">
+    <link rel="stylesheet" href="css/tab-fix.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+    .analytics-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .stat-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        padding: 1rem;
+        text-align: center;
+        transition: 0.3s;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .stat-card h3 {
+        margin-bottom: 0.5rem;
+        color: #555;
+    }
+
+    .stat-card .stat-value {
+        font-size: 1.6rem;
+        font-weight: bold;
+        color: #1976d2;
+    }
+
+    .chart-section {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2rem;
+        margin-top: 2rem;
+        justify-content: space-around;
+    }
+
+    canvas {
+        max-width: 400px;
+        max-height: 300px;
+    }
+
+    
+    .analytics-controls {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .btn-export {
+        background: #1976d2;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 0.4rem 0.8rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        transition: 0.2s;
+    }
+    .btn-export:hover {
+        background: #1565c0;
+    }
+
+    .chart-section {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+
+    .match-card {
+    background: #f8f9fb;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 12px 0;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    transition: 0.2s ease;
+}
+.match-card:hover {
+    background: #eef3ff;
+    transform: scale(1.01);
+}
+.match-card h3 {
+    color: #1f3b87;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.match-card {
+  background: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 15px;
+  margin: 10px 0;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+  transition: transform 0.2s ease;
+}
+.match-card:hover {
+  transform: translateY(-2px);
+}
+.progress-bar {
+  height: 8px;
+  background: #eee;
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 8px 0;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #007bff, #00c853);
+}
+.confidence-text {
+  font-size: 13px;
+  color: #444;
+  text-align: right;
+}
+.rotating {
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.resources-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.resource-card {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  padding: 1rem 1.5rem;
+  transition: transform 0.2s ease;
+}
+.resource-card:hover {
+  transform: translateY(-2px);
+}
+.resource-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.resource-body p {
+  line-height: 1.5;
+  color: #333;
+}
+
+.loading-state {
+  text-align: center;
+  padding: 2rem;
+}
+.spinner {
+  width: 30px;
+  height: 30px;
+  border: 4px solid #ccc;
+  border-top: 4px solid #007bff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: none;
+}
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+}
+.modal-panel {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 900px;
+  background: #fff;
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+}
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.modal-close {
+  border: none;
+  background: none;
+  font-size: 22px;
+  cursor: pointer;
+}
+.modal-body {
+  margin-top: 10px;
+}
+.modal-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 16px;
+}
+.modal-timeline {
+  background: #f8f8f8;
+  border-radius: 6px;
+  padding: 10px;
+  max-height: 420px;
+  overflow: auto;
+}
+
+
+
+.case-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  transition: transform 0.15s ease;
+}
+.case-card:hover {
+  transform: translateY(-3px);
+}
+.status-badge.updated {
+  background: #1976d2;
+  color: #fff;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+.case-actions {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+}
+.voice-input-group {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.mic-btn {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    background: #007bff; /* match your primary button color */
+    color: white;
+    font-size: 16px;
+}
+
+.mic-btn.recording {
+    background: red; /* change to red when recording */
+}
+
+.voice-status {
+    font-size: 12px;
+    color: red;
+    margin-top: 4px;
+}
+
+/* === FIR Step 3: Legal Section Prediction Styling === */
+.sections-container {
+  background: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 1rem;
+  margin-top: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.loading-sections {
+  text-align: center;
+  padding: 1.5rem;
+  color: #555;
+}
+.loading-sections i {
+  font-size: 32px;
+  color: #1976d2;
+  animation: spin 1s linear infinite;
+}
+
+.section-card {
+  background: #f9fafc;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 0.8rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+.section-card:hover {
+  background: #eef3ff;
+  transform: translateY(-2px);
+}
+.section-card h4 {
+  color: #1a237e;
+  margin-bottom: 0.4rem;
+}
+.section-card p {
+  color: #444;
+  font-size: 14px;
+}
+.section-card .penalty {
+  font-size: 13px;
+  color: #555;
+  margin-top: 0.5rem;
+}
+.section-card button {
+  margin-top: 0.6rem;
+  background: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.section-card button:hover {
+  background: #0d47a1;
+}
+
+.selected-sections-container {
+  background: #f0f6ff;
+  border: 1px solid #bbdefb;
+  border-radius: 10px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+.selected-sections-container h4 {
+  color: #0d47a1;
+  margin-bottom: 0.6rem;
+}
+.selected-sections .section-tag {
+  display: inline-block;
+  background: #1976d2;
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: 13px;
+  margin: 3px;
+}
+
+/* === FIR Step 4: Review & Submit Styling === */
+.review-section {
+  background: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+.review-section h4 {
+  color: #1a237e;
+  margin-bottom: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.review-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 10px 20px;
+}
+.review-item {
+  background: #f9f9f9;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 14px;
+}
+.review-item.full-width {
+  grid-column: span 2;
+}
+.review-text {
+  margin-top: 4px;
+  white-space: pre-wrap;
+  color: #444;
+}
+.review-subtitle {
+  font-size: 15px;
+  color: #555;
+  margin-bottom: 1rem;
+}
+
+.step-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1.5rem;
+}
+
+/* Button Consistency */
+.step-btn {
+  background: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.6rem 1.2rem;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.step-btn:hover {
+  background: #0d47a1;
+}
+.step-btn.outline {
+  background: white;
+  color: #1976d2;
+  border: 1px solid #1976d2;
+}
+.step-btn.outline:hover {
+  background: #e3f2fd;
+}
+
+
+
+
+
+
+
+
+
+
+/* Enhanced Analytics Styling */
+.analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+}
+
+.analytics-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e0e0e0;
+}
+
+.analytics-card h3 {
+    color: #1a237e;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    border-bottom: 2px solid #e3f2fd;
+    padding-bottom: 0.5rem;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #1976d2;
+    position: relative;
+}
+
+.stat-value {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #1976d2;
+    display: block;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 0.5rem;
+}
+
+.trend-indicator {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 0.7rem;
+}
+
+.trend-up {
+    background: #e8f5e8;
+    color: #2e7d32;
+    padding: 2px 6px;
+    border-radius: 8px;
+}
+
+.trend-down {
+    background: #ffebee;
+    color: #c62828;
+    padding: 2px 6px;
+    border-radius: 8px;
+}
+
+.chart-container {
+    position: relative;
+    height: 250px;
+    margin: 1rem 0;
+}
+
+.insights-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.insight-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.8rem;
+    padding: 0.8rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 3px solid #1976d2;
+}
+
+.insight-item i {
+    color: #1976d2;
+    margin-top: 0.2rem;
+}
+
+.hotspot-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem;
+    margin-bottom: 0.5rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #ff9800;
+}
+
+.location-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.location-stats {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.count {
+    font-weight: bold;
+    color: #333;
+}
+
+.risk-badge {
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.risk-high { background: #ffebee; color: #c62828; }
+.risk-medium { background: #fff3e0; color: #ef6c00; }
+.risk-low { background: #e8f5e8; color: #2e7d32; }
+
+.comparison-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.comparison-item {
+    text-align: center;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.time-filter {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.time-filter-btn {
+    padding: 0.5rem 1rem;
+    border: 1px solid #ddd;
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.time-filter-btn.active {
+    background: #1976d2;
+    color: white;
+    border-color: #1976d2;
+}
+
+.time-filter-btn:hover:not(.active) {
+    background: #f5f5f5;
+}
+
+.export-options {
+    display: flex;
+    gap: 0.5rem;
+    margin-left: auto;
+}
+
+.btn-export {
+    background: #1976d2;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.9rem;
+    transition: background 0.3s ease;
+}
+
+.btn-export:hover {
+    background: #1565c0;
+}
+
+.loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    color: #666;
+}
+
+.loading-state .spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #1976d2;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.error-state {
+    text-align: center;
+    padding: 2rem;
+    color: #d32f2f;
+}
+
+.error-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+
+    </style>
+
+    
+
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <i class="material-icons">security</i>
+                <span>Police Dashboard</span>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="home.html"><i class="material-icons">home</i> Home</a></li>
+                    <li><a href="#" id="logoutBtn"><i class="material-icons">logout</i> Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="dashboard">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="sidebar-header">
+                    <i class="material-icons">account_circle</i>
+                    <span>Police Officer</span>
+                </div>
+                
+                <div class="sidebar-section">
+                    <h3>Navigation</h3>
+                    <button class="sidebar-btn active" data-tab="draft-fir">
+                        <i class="material-icons">note_add</i> Draft FIR
+                    </button>
+                    <button class="sidebar-btn" data-tab="case-management">
+                        <i class="material-icons">pending_actions</i> Case Management
+                    </button>
+                    <button class="sidebar-btn" data-tab="crime-analytics">
+                        <i class="material-icons">analytics</i> Crime Analytics
+                    </button>
+                    <button class="sidebar-btn" data-tab="criminal-matching">
+                        <i class="material-icons">fingerprint</i> Criminal Matching
+                    </button>
+                    <button class="sidebar-btn" data-tab="legal-resources">
+                        <i class="material-icons">gavel</i> Legal Resources
+                    </button>
+                </div>
+
+                <div class="sidebar-footer">
+                    <div class="system-status">
+                        <span>Status: </span>
+                        <span id="systemStatus" class="status-online">Online</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="main-content">
+                <!-- Tab 1: Draft FIR (Existing - Keep as is) -->
+                <div class="tab-content active" id="draft-fir">
+                    <!-- Your existing FIR drafting interface remains exactly the same -->
+                    <div class="fir-container">
+                        <!-- EXISTING FIR DRAFTING CODE - KEEP EVERYTHING EXACTLY AS IS -->
+                        <div class="fir-title">
+                            <i class="material-icons">gavel</i>
+                            <span>FIR Drafting Assistant</span>
+                        </div>
+                        
+                        <div class="stepper">
+                            <div class="step active" id="step1">
+                                <div class="step-number">1</div>
+                                <div class="step-label">Incident Details</div>
+                            </div>
+                            <div class="step" id="step2">
+                                <div class="step-number">2</div>
+                                <div class="step-label">Victim Information</div>
+                            </div>
+                            <div class="step" id="step3">
+                                <div class="step-number">3</div>
+                                <div class="step-label">Legal Sections</div>
+                            </div>
+                            <div class="step" id="step4">
+                                <div class="step-number">4</div>
+                                <div class="step-label">Review & Submit</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Step 1: Incident Details -->
+                        <div class="form-step active" id="formStep1">
+                            <h3>Incident Details</h3>
+                            
+                            <div class="form-row">
+                                <div class="form-col">
+                                    <div class="form-group">
+                                        <label for="incidentType">Incident Type *</label>
+                                        <select id="incidentType" required>
+                                            <option value="">Select incident type</option>
+                                            <option value="theft">Theft</option>
+                                            <option value="assault">Assault</option>
+                                            <option value="fraud">Fraud</option>
+                                            <option value="cybercrime">Cybercrime</option>
+                                            <option value="murder">Murder</option>
+                                            <option value="kidnapping">Kidnapping</option>
+                                            <option value="rape">Rape</option>
+                                            <option value="robbery">Robbery</option>
+                                            <option value="bribery">Bribery</option>
+                                            <option value="other">Other</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-col">
+                                    <div class="form-group">
+                                        <label for="location">Location *</label>
+                                        <input type="text" id="location" required placeholder="Enter incident location">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-col">
+                                    <div class="form-group">
+                                        <label for="incidentDate">Date *</label>
+                                        <input type="date" id="incidentDate" required>
+                                    </div>
+                                </div>
+                                <div class="form-col">
+                                    <div class="form-group">
+                                        <label for="incidentTime">Time *</label>
+                                        <input type="time" id="incidentTime" required>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="incidentDescription">Incident Description *</label>
+
+                                <div class="voice-input-group">
+                                    <textarea id="incidentDescription" rows="4" required placeholder="Provide detailed description of the incident..."></textarea>
+                                    <button type="button" id="startVoiceBtn" class="mic-btn" title="Speak instead of typing">🎤</button>
+                                </div>
+
+                                <div id="voiceStatus" class="voice-status"></div>
+                                
+                                <small>AI will analyze this description to suggest relevant IPC sections</small>
+                            </div>
+
+                            
+                            <div class="step-actions">
+                                <button class="step-btn outline" disabled>Back</button>
+                                <button class="step-btn" id="nextStep1">Next</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Step 2: Victim Information -->
+                        <div class="form-step" id="formStep2">
+                            <h3>Victim Information</h3>
+                            
+                            <div class="form-row">
+                                <div class="form-col">
+                                    <div class="form-group">
+                                        <label for="victimName">Victim Name *</label>
+                                        <input type="text" id="victimName" required placeholder="Full name of victim">
+                                    </div>
+                                </div>
+                                <div class="form-col">
+                                    <div class="form-group">
+                                        <label for="victimContact">Contact Number *</label>
+                                        <input type="tel" id="victimContact" required placeholder="Phone number">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-col">
+                                    <div class="form-group">
+                                        <label for="victimAge">Age</label>
+                                        <input type="number" id="victimAge" placeholder="Age of victim">
+                                    </div>
+                                </div>
+                                <div class="form-col">
+                                    <div class="form-group">
+                                        <label for="victimGender">Gender</label>
+                                        <select id="victimGender">
+                                            <option value="">Select gender</option>
+                                            <option value="male">Male</option>
+                                            <option value="female">Female</option>
+                                            <option value="other">Other</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="victimAddress">Address *</label>
+                                <textarea id="victimAddress" rows="3" required placeholder="Complete residential address"></textarea>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-col">
+                                    <div class="form-group">
+                                        <label for="accusedName">Accused Name (if known)</label>
+                                        <input type="text" id="accusedName" placeholder="Name of accused person">
+                                    </div>
+                                </div>
+                                <div class="form-col">
+                                    <div class="form-group">
+                                        <label for="accusedDescription">Accused Description</label>
+                                        <input type="text" id="accusedDescription" placeholder="Physical description, vehicle details, etc.">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="step-actions">
+                                <button class="step-btn outline" id="prevStep2">Back</button>
+                                <button class="step-btn" id="nextStep2">Next</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Step 3: Legal Sections -->
+                        <div class="form-step" id="formStep3">
+                            <h3>AI-Suggested Legal Sections</h3>
+                            <p>Based on the incident description, our AI system recommends the following applicable legal sections:</p>
+                            
+                            <div class="selected-sections-container" id="selectedSectionsContainer">
+                                <h4>Selected Sections:</h4>
+                                <div id="selectedSections">
+                                    <p class="no-sections">No sections selected yet. Click "Select" on suggested sections below.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="sections-container" id="sectionsContainer">
+                                <div class="loading-sections">
+                                    <i class="material-icons">search</i>
+                                    <p>AI is analyzing your incident description...</p>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="investigatingOfficer">Investigating Officer *</label>
+                                <input type="text" id="investigatingOfficer" required placeholder="Name of investigating officer">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="additionalComments">Additional Comments</label>
+                                <textarea id="additionalComments" rows="3" placeholder="Any additional information or observations..."></textarea>
+                            </div>
+                            
+                            <div class="step-actions">
+                                <button class="step-btn outline" id="prevStep3">Back</button>
+                                <button class="step-btn" id="nextStep3">Review FIR</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Step 4: Review & Submit -->
+                        <div class="form-step" id="formStep4">
+                            <h3>Review FIR Details</h3>
+                            <p class="review-subtitle">Please review all information before submitting the FIR</p>
+                            
+                            <div class="review-section">
+                                <h4><i class="material-icons">event</i> Incident Details</h4>
+                                <div class="review-grid">
+                                    <div class="review-item">
+                                        <strong>Type:</strong> <span id="reviewIncidentType">Not provided</span>
+                                    </div>
+                                    <div class="review-item">
+                                        <strong>Date:</strong> <span id="reviewIncidentDate">Not provided</span>
+                                    </div>
+                                    <div class="review-item">
+                                        <strong>Time:</strong> <span id="reviewIncidentTime">Not provided</span>
+                                    </div>
+                                    <div class="review-item">
+                                        <strong>Location:</strong> <span id="reviewLocation">Not provided</span>
+                                    </div>
+                                    <div class="review-item full-width">
+                                        <strong>Description:</strong> 
+                                        <div id="reviewIncidentDescription" class="review-text">Not provided</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="review-section">
+                                <h4><i class="material-icons">person</i> Victim Information</h4>
+                                <div class="review-grid">
+                                    <div class="review-item">
+                                        <strong>Name:</strong> <span id="reviewVictimName">Not provided</span>
+                                    </div>
+                                    <div class="review-item">
+                                        <strong>Contact:</strong> <span id="reviewVictimContact">Not provided</span>
+                                    </div>
+                                    <div class="review-item">
+                                        <strong>Age:</strong> <span id="reviewVictimAge">Not provided</span>
+                                    </div>
+                                    <div class="review-item">
+                                        <strong>Gender:</strong> <span id="reviewVictimGender">Not provided</span>
+                                    </div>
+                                    <div class="review-item full-width">
+                                        <strong>Address:</strong> 
+                                        <div id="reviewVictimAddress" class="review-text">Not provided</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="review-section" id="accusedReviewSection" style="display: none;">
+                                <h4><i class="material-icons">warning</i> Accused Information</h4>
+                                <div class="review-grid">
+                                    <div class="review-item">
+                                        <strong>Name:</strong> <span id="reviewAccusedName">Not provided</span>
+                                    </div>
+                                    <div class="review-item full-width">
+                                        <strong>Description:</strong> 
+                                        <div id="reviewAccusedDescription" class="review-text">Not provided</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="review-section">
+                                <h4><i class="material-icons">gavel</i> Legal Sections</h4>
+                                <div id="reviewSections" class="sections-review">
+                                    <p class="no-sections">No sections selected</p>
+                                </div>
+                            </div>
+
+                            <div class="review-section" id="investigationReviewSection" style="display: none;">
+                                <h4><i class="material-icons">security</i> Investigation Details</h4>
+                                <div class="review-grid">
+                                    <div class="review-item">
+                                        <strong>Investigating Officer:</strong> <span id="reviewInvestigatingOfficer">Not provided</span>
+                                    </div>
+                                    <div class="review-item full-width">
+                                        <strong>Additional Comments:</strong> 
+                                        <div id="reviewAdditionalComments" class="review-text">No additional comments</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="step-actions">
+                                <button class="step-btn outline" id="prevStep4">Back</button>
+                                <button class="step-btn" id="submitFIR">Submit FIR</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Completion Step -->
+                        <div class="form-step" id="formStep5">
+                            <div class="completion-step">
+                                <i class="material-icons">check_circle</i>
+                                <h3>FIR Successfully Drafted!</h3>
+                                <p>Your FIR has been submitted to the system. You can view or print it from the dashboard.</p>
+                                <div id="downloadSection" class="download-section" style="display: none;">
+                                    <p>FIR Number: <strong id="firNumberDisplay"></strong></p>
+                                    <button class="download-btn" onclick="downloadFIR()">
+                                        <i class="material-icons">download</i> Download FIR PDF
+                                    </button>
+                                </div>
+                                <button class="step-btn" id="resetForm">Draft Another FIR</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Case Management -->
+                <div class="tab-content case-management-content" id="case-management-tab">
+                    <div class="tab-container">
+                        <div class="tab-header">
+                            <h2><i class="material-icons">pending_actions</i> Case Management</h2>
+                            <div class="tab-controls">
+                                <button class="tab-filter active" data-filter="pending">Pending Cases</button>
+                                <button class="tab-filter" data-filter="updates">Recent Updates</button>
+                                <button class="tab-filter" data-filter="all">All Cases</button>
+                            </div>
+                        </div>
+
+                        <div class="tab-content-area">
+                            <!-- Loading State -->
+                            <div id="casesLoading" class="loading-state">
+                                <i class="material-icons spin">refresh</i>
+                                <p>Loading cases...</p>
+                            </div>
+
+                            <!-- Actual Case Lists -->
+                            <div id="casesContent" class="cases-content" style="display: none;">
+                                
+                                <!-- Pending Cases -->
+                                <div id="pendingCasesList" class="case-list">
+                                    <p class="placeholder-text">Pending cases will appear here.</p>
+                                </div>
+
+                                <!-- Recent Updates -->
+                                <div id="caseUpdatesList" class="case-list" style="display: none;">
+                                    <p class="placeholder-text">Recent updates will appear here.</p>
+                                </div>
+
+                                <!-- All Cases -->
+                                <div id="allCasesList" class="case-list" style="display: none;">
+                                    <p class="placeholder-text">All case records will appear here.</p>
+                                </div>
+                            </div>
+                            <!-- Case Modal: add inside Case Management tab (after casesContent element) -->
+                            <!-- Case Modal: add inside Case Management tab (after casesContent element) -->
+                            <!-- Case Modal -->
+                            <div id="caseModal" class="modal" style="display:none;">
+                            <!-- Backdrop -->
+                            <div class="modal-backdrop" onclick="closeCaseModal()" 
+                                style="position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:9998;">
+                            </div>
+
+                            <!-- Panel -->
+                            <div class="modal-panel" 
+                                style="position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);
+                                        width:90%;max-width:900px;background:#fff;border-radius:8px;
+                                        padding:18px;z-index:9999;box-shadow:0 10px 30px rgba(0,0,0,0.2);">
+                                <div style="display:flex;justify-content:space-between;align-items:center;">
+                                <h3 id="modalFirTitle">FIR #N/A</h3>
+                                <div>
+                                    <button onclick="closeCaseModal()" class="btn">Close</button>
+                                </div>
+                                </div>
+
+                                <div style="display:grid;grid-template-columns:1fr 320px;gap:16px;margin-top:12px;">
+                                <div>
+                                    <div id="modalCaseDetails" style="max-height:360px;overflow:auto;padding-right:8px;">
+                                    <p><strong>Type:</strong> <span id="modalIncidentType"></span></p>
+                                    <p><strong>Location:</strong> <span id="modalLocation"></span></p>
+                                    <p><strong>Victim:</strong> <span id="modalVictim"></span></p>
+                                    <p><strong>Officer:</strong> <span id="modalOfficer"></span></p>
+                                    <p><strong>Status:</strong> <span id="modalStatus"></span></p>
+                                    <hr />
+                                    <h4>Description</h4>
+                                    <div id="modalDescription" style="white-space:pre-wrap;"></div>
+                                    <hr />
+                                    <h4>Investigation Notes</h4>
+                                    <div id="modalInvestigationNotes" style="white-space:pre-wrap;"></div>
+                                    </div>
+
+                                    <div style="margin-top:12px;">
+                                    <label for="updateStatusSelect"><strong>Change status</strong></label>
+                                    <select id="updateStatusSelect" style="width:100%;padding:8px;margin-top:6px;">
+                                        <option value="under_investigation">under_investigation</option>
+                                        <option value="registered">registered</option>
+                                        <option value="charges_filed">charges_filed</option>
+                                        <option value="court_proceeding">court_proceeding</option>
+                                        <option value="resolved">resolved</option>
+                                        <option value="closed">closed</option>
+                                    </select>
+                                    <textarea id="updateNotes" placeholder="Investigation notes / activity (optional)" 
+                                                rows="3" style="width:100%;margin-top:8px;padding:8px;"></textarea>
+                                    <div style="display:flex;gap:8px;margin-top:8px;">
+                                        <button id="modalSaveStatusBtn" class="btn">Save status</button>
+                                        <button id="modalAddNoteBtn" class="btn">Add activity</button>
+                                    </div>
+                                    </div>
+                                </div>
+
+                                <aside style="background:#f7f7f7;padding:10px;border-radius:6px;">
+                                    <h4>Activity Timeline</h4>
+                                    <div id="modalTimeline" style="max-height:420px;overflow:auto;"></div>
+                                </aside>
+                                </div>
+                            </div>
+                            </div>
+
+
+
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Tab 3: Crime Analytics -->
+                <!-- Tab 3: Crime Analytics - ENHANCED VERSION -->
+<!-- Tab 3: Crime Analytics - ENHANCED VERSION -->
+<div class="tab-content crime-analytics-content" id="crime-analytics-tab">
+    <div class="tab-container">
+        <div class="tab-header">
+            <h2><i class="material-icons">analytics</i> Crime Analytics Dashboard</h2>
+            <div class="analytics-controls">
+                <div class="time-filter">
+                    <button class="time-filter-btn active" data-range="week">Week</button>
+                    <button class="time-filter-btn" data-range="month">Month</button>
+                    <button class="time-filter-btn" data-range="quarter">Quarter</button>
+                    <button class="time-filter-btn" data-range="year">Year</button>
+                </div>
+                <div class="export-options">
+                    <button id="exportPDF" class="btn-export"><i class="material-icons">picture_as_pdf</i> PDF</button>
+                    <button id="exportCSV" class="btn-export"><i class="material-icons">table_chart</i> CSV</button>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="analytics-content">
+            <div id="analyticsLoading" class="loading-state">
+                <div class="spinner"></div>
+                <p>Loading comprehensive crime analytics...</p>
+            </div>
+
+            <div id="analyticsResults" style="display: none;">
+                <!-- Content will be dynamically generated here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+                <!-- Tab 4: Criminal Matching -->
+                <div class="tab-content criminal-matching-content" id="criminal-matching-tab">
+                    <div class="tab-container">
+                        <div class="tab-header">
+                            <h2><i class="material-icons">fingerprint</i> Criminal Pattern Matching</h2>
+                        </div>
+                        
+                        <div class="matching-interface">
+                            <div class="search-section">
+                                <h3>Match Case Patterns</h3>
+                                <textarea id="caseDescription" placeholder="Describe the case incident, modus operandi, suspect details..." rows="4"></textarea>
+                                <button class="btn-match" onclick="findCriminalMatches()">
+                                    <i class="material-icons">search</i> Find Similar Patterns
+                                </button>
+                            </div>
+                            
+                            <div id="matchingResults" class="matching-results">
+                                <div class="info-state">
+                                    <i class="material-icons">fingerprint</i>
+                                    <p>Enter case details to find matching criminal patterns</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 5: Legal Resources -->
+                <!-- Tab 5: Legal Resources -->
+                <div class="tab-content legal-resources-content" id="legal-resources-tab">
+                <div class="tab-container">
+                    <div class="tab-header">
+                    <h2><i class="material-icons">gavel</i> Legal Resources</h2>
+                    <div class="search-box">
+                        <input type="text" id="legalSearch" placeholder="Search IPC sections, acts or procedures...">
+                        <button onclick="searchLegalResources()"><i class="material-icons">search</i></button>
+                    </div>
+                    </div>
+
+                    <div class="resources-content">
+                    <div class="resources-grid" id="legalResourcesGrid">
+                        <div class="info-state">
+                        <i class="material-icons">gavel</i>
+                        <p>Enter a query like "Section 302 IPC" or "Procedure for bail" to get details</p>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 AI Legal Assistance System. Developed as part of Bachelor of Technology in Computer Engineering.</p>
+    </footer>
+
+    <!-- JavaScript Files - ALL INTEGRATED -->
+    <script src="js/script.js"></script>
+    <script src="js/fir-drafting.js"></script>
+    <script src="js/case-management.js"></script>
+    <script src="js/analytics-dashboard.js"></script>
+    <script src="js/criminal-search.js"></script>
+
+    <!-- Main Dashboard Controller -->
+    <script src="js/police-dashboard.js"></script>
+    <script src="js/legal-quiz.js"></script>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard - Police Verification</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: #f6f9fc;
+      font-family: "Segoe UI", sans-serif;
+    }
+    .container {
+      margin-top: 50px;
+    }
+    .table {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .verify-btn {
+      border: none;
+      border-radius: 6px;
+      padding: 6px 12px;
+      color: white;
+      background: #007bff;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .verify-btn:hover {
+      background: #0056b3;
+    }
+    .verified {
+      color: green;
+      font-weight: bold;
+    }
+    .not-verified {
+      color: red;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2 class="mb-4 text-center">👮 Admin Panel - Police Verification</h2>
+
+    <table class="table table-bordered" id="policeTable">
+      <thead class="table-dark">
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Rank</th>
+          <th>Police Station</th>
+          <th>Verification Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        <tr><td colspan="6" class="text-center">Loading...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    async function fetchPoliceUsers() {
+      try {
+        const response = await fetch('/api/get-police-users');
+        const data = await response.json();
+        const tableBody = document.getElementById('tableBody');
+        tableBody.innerHTML = "";
+
+        if (!data.length) {
+          tableBody.innerHTML = `<tr><td colspan="6" class="text-center">No police users found</td></tr>`;
+          return;
+        }
+
+        data.forEach(user => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${user.full_name || '-'}</td>
+            <td>${user.email}</td>
+            <td>${user.rank || '-'}</td>
+            <td>${user.police_station || '-'}</td>
+            <td>
+              ${user.is_verified
+                ? '<span class="verified">Verified</span>'
+                : '<span class="not-verified">Not Verified</span>'}
+            </td>
+            <td>
+              <button class="verify-btn" onclick="toggleVerification('${user.email}')">
+                ${user.is_verified ? 'Unverify' : 'Verify'}
+              </button>
+            </td>
+          `;
+          tableBody.appendChild(row);
+        });
+      } catch (err) {
+        console.error(err);
+        alert("Failed to load users.");
+      }
+    }
+
+    async function toggleVerification(email) {
+      const code = prompt("Enter admin verification code:");
+      if (!code) return;
+
+      try {
+        const response = await fetch('/api/toggle-verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, code })
+        });
+
+        const result = await response.json();
+        alert(result.message || result.error);
+        fetchPoliceUsers(); // Refresh table
+      } catch (err) {
+        alert("Error verifying user.");
+        console.error(err);
+      }
+    }
+
+    // Load table on page load
+    fetchPoliceUsers();
+  </script>
+</body>
+</html>

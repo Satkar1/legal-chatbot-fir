@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Citizen Dashboard | AI Legal Assistance</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/citizen.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <i class="material-icons">gavel</i>
+                <span>AI Legal Assistance</span>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="home.html"><i class="material-icons">home</i> Home</a></li>
+                    <li><a href="#" id="logoutBtn"><i class="material-icons">logout</i> Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="dashboard">
+            <div class="sidebar">
+                <h3 class="sidebar-title">Legal Learning Hub</h3>
+                
+                <button class="sidebar-btn active" id="chatbotTab">
+                    <i class="material-icons">chat</i>
+                    AI Legal Assistant
+                </button>
+                
+                
+            </div>
+            
+            <div class="main-content">
+                <div class="chat-container">
+                    <div class="chat-header">
+                        <i class="material-icons">chat</i>
+                        <span>AI Legal Assistant</span>
+                    </div>
+                    
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="message bot-message">
+                            Hello! I am your AI Legal Assistant. How can I help you today?
+                        </div>
+                    </div>
+                    
+                    <div class="chat-input-container">
+                        <div class="voice-input-group" style="width:100%; display:flex; gap:8px; align-items:center;">
+                            <input type="text" class="chat-input" id="userInput" placeholder="Type your legal question here..." style="flex:1;">
+                            <!-- Microphone toggle -->
+                            <button type="button" id="startVoiceBtn" class="mic-btn" title="Speak instead of typing">🎤</button>
+
+                            <button class="send-btn" id="sendBtn" title="Send question">
+                                <i class="material-icons">send</i>
+                            </button>
+                        </div>
+
+                        <div id="voiceStatus" class="voice-status" aria-live="polite" style="margin-top:6px;"></div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 AI Legal Assistance System. Developed as part of Bachelor of Technology in Computer Engineering.</p>
+    </footer>
+
+    <script src="js/script.js"></script>
+    <script src="js/chatbot.js"></script>
+    <script src="js/legal-quiz.js"></script>
+    
+</body>
+</html>
