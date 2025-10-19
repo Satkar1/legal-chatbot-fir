@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environments
+.env
+.venv/
+env/
+venv/
+
+# Local data
+*.pkl
+fir_drafts/
+*.pdf
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# System files
+.DS_Store
+Thumbs.db
